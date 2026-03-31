@@ -21,7 +21,7 @@ jobs:
           java-version: '17'
 
       - name: Build & Run Tests
-        run: mvn clean test -Denv=ci -DrunMode=local
+        run: mvn clean test -Denv=qa -DrunMode=local -DexecutionEnv=ci
 
       - name: Upload Test Reports
         if: always()

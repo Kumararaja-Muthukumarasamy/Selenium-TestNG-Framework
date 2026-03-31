@@ -37,13 +37,21 @@ public final class ConfigReader {
 	
 	public static String getEnvironmentUrl() {
 
-	    String env = getPropValue("env");   // qa / uat / prod
+	    String env = getPropValue("env");
 
-	    return switch (env.toLowerCase()) {
-	        case "qa" -> getPropValue("qa.url");
-	        case "uat" -> getPropValue("uat.url");
-	        case "prod" -> getPropValue("prod.url");
-	        default -> throw new RuntimeException("Invalid environment: " + env);
-	    };
+	    if (env == null || env.isEmpty()) {
+	        throw new RuntimeException("Environment not provided. Use -Denv=qa/uat/prod");
+	    }
+
+	    switch (env.toLowerCase()) {
+	        case "qa":
+	            return getPropValue("qa.url");
+	        case "uat":
+	            return getPropValue("uat.url");
+	        case "prod":
+	            return getPropValue("prod.url");
+	        default:
+	            throw new RuntimeException("Invalid environment: " + env);
+	    }
 	}
 }
