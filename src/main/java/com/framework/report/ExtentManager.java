@@ -23,7 +23,7 @@ public class ExtentManager {
             extent = new ExtentReports();
             extent.attachReporter(spark);
 
-            // 🔥 System Info (static only)
+            // System Info (static only)
             extent.setSystemInfo("Environment", ConfigReader.getPropValue("env"));
             extent.setSystemInfo("OS", System.getProperty("os.name"));
             extent.setSystemInfo("User", System.getProperty("user.name"));

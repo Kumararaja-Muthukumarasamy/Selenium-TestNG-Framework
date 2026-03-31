@@ -26,20 +26,20 @@ public class ReportListener implements ITestListener {
 
         ExtentTestManager.setTest(extentTest);
 
-        // 🔥 Assign groups (FIXED)
+        // Assign groups (FIXED)
         for (String group : result.getMethod().getGroups()) {
             ExtentTestManager.getTest().assignCategory(group);
         }
 
-        // 🔥 Add dynamic info
-        ExtentTestManager.getTest().info("🚀 Test Started");
+        // Add dynamic info
+        ExtentTestManager.getTest().info("Test Started");
         ExtentTestManager.getTest().info("Browser: " + browser);
     }
 
     @Override
     public void onTestSuccess(ITestResult result) {
 
-        ExtentTestManager.getTest().pass("✅ Test Passed");
+        ExtentTestManager.getTest().pass("Test Passed");
         ExtentTestManager.getTest().info("Execution completed successfully");
 
         ExtentTestManager.getTest().info("URL: "
@@ -59,7 +59,7 @@ public class ReportListener implements ITestListener {
 
         ExtentTestManager.getTest().fail(result.getThrowable());
 
-        // 🔥 INLINE IMAGE FIX
+        // INLINE IMAGE FIX
         ExtentTestManager.getTest().fail("Test Failed: " 
                 + testName + " [" + browser + "]",
                 MediaEntityBuilder
@@ -70,7 +70,7 @@ public class ReportListener implements ITestListener {
 
     @Override
     public void onTestSkipped(ITestResult result) {
-        ExtentTestManager.getTest().skip("⚠ Test Skipped");
+        ExtentTestManager.getTest().skip("Test Skipped");
     }
 
     @Override
