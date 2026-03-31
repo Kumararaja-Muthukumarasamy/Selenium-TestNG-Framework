@@ -1,7 +1,6 @@
 pipeline {
-    agent any
-
-    parameters {
+   
+       parameters {
         choice(name: 'BROWSER', choices: ['chrome', 'firefox', 'edge'], description: 'Select browser')
         choice(name: 'ENV', choices: ['qa', 'uat', 'prod'], description: 'Select environment')
     }
