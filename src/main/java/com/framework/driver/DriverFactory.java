@@ -16,76 +16,89 @@ import com.framework.config.ConfigReader;
 
 public final class DriverFactory {
 
-	private DriverFactory() {}
+    private DriverFactory() {}
 
-	public static WebDriver initDriver(String browser, String runMode, String hubUrl) {
+    public static WebDriver initDriver(String browser, String runMode, String hubUrl) {
 
-		WebDriver driver;
+        WebDriver driver;
 
-		if ("remote".equalsIgnoreCase(runMode)) {
-			driver = createRemoteDriver(browser, hubUrl);
-		} else {
-			driver = createLocalDriver(browser);
-		}
-		DriverManager.setDriver(driver);
-		applyBasicSettings(driver);
+        if ("remote".equalsIgnoreCase(runMode)) {
+            driver = createRemoteDriver(browser, hubUrl);
+        } else {
+            driver = createLocalDriver(browser);
+        }
 
-		return driver;
-	}
+        DriverManager.setDriver(driver);
+        applyBasicSettings(driver);
 
+        return driver;
+    }
 
-	// ✅ LOCAL
-	private static WebDriver createLocalDriver(String browser) {
-		switch (browser.toLowerCase()) {
-		case "chrome":
-			return new ChromeDriver(getChromeOptions());
+    // ✅ LOCAL
+    private static WebDriver createLocalDriver(String browser) {
+        switch (browser.toLowerCase()) {
+            case "chrome":
+                return new ChromeDriver(getChromeOptions());
 
-		case "firefox":
-			return new FirefoxDriver(getFirefoxOptions());
+            case "firefox":
+                return new FirefoxDriver(getFirefoxOptions());
 
-		case "edge":
-			return new EdgeDriver(getEdgeOptions());
+            case "edge":
+                return new EdgeDriver(getEdgeOptions());
 
-		default:
-			throw new IllegalArgumentException("Invalid browser: " + browser);
-		}
-	}
+            default:
+                throw new IllegalArgumentException("Invalid browser: " + browser);
+        }
+    }
 
-	// ✅ REMOTE (Grid / Docker / Cloud)
-	private static WebDriver createRemoteDriver(String browser, String hubUrl) {
+    // ✅ REMOTE (Grid / Docker / Cloud)
+    private static WebDriver createRemoteDriver(String browser, String hubUrl) {
 
-		try {
-			URL url = new URL(hubUrl);
+        try {
+            URL url = new URL(hubUrl);
 
-			switch (browser.toLowerCase()) {
-			case "chrome":
-				return new RemoteWebDriver(url, getChromeOptions());
+            switch (browser.toLowerCase()) {
+                case "chrome":
+                    return new RemoteWebDriver(url, getChromeOptions());
 
-			case "firefox":
-				return new RemoteWebDriver(url, getFirefoxOptions());
+                case "firefox":
+                    return new RemoteWebDriver(url, getFirefoxOptions());
 
-			case "edge":
-				return new RemoteWebDriver(url, getEdgeOptions());
+                case "edge":
+                    return new RemoteWebDriver(url, getEdgeOptions());
 
-			default:
-				throw new IllegalArgumentException("Invalid browser: " + browser);
-			}
+                default:
+                    throw new IllegalArgumentException("Invalid browser: " + browser);
+            }
 
-		} catch (MalformedURLException e) {
-			throw new RuntimeException("Invalid hub URL: " + hubUrl, e);
-		}
-	}
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Invalid hub URL: " + hubUrl, e);
+        }
+    }
 
-	// ✅ COMMON SETTINGS
-	private static void applyBasicSettings(WebDriver driver) {
-		driver.manage().window().maximize();
-		driver.manage().deleteAllCookies();
-	}
-	
-	 // ✅ OPTIONS (kept simple)
+    // ✅ COMMON SETTINGS
+    private static void applyBasicSettings(WebDriver driver) {
+        driver.manage().window().maximize();
+        driver.manage().deleteAllCookies();
+    }
+
+    // 🔥 Detect CI
+    private static boolean isCI() {
+        return System.getProperty("env", "local").equalsIgnoreCase("ci");
+    }
+
+    // ✅ CHROME OPTIONS
     private static ChromeOptions getChromeOptions() {
         ChromeOptions options = new ChromeOptions();
 
+        // 👉 CI specific fixes
+        if (isCI()) {
+            options.addArguments("--headless=new");
+            options.addArguments("--no-sandbox");
+            options.addArguments("--disable-dev-shm-usage");
+        }
+
+        // 👉 Config-based
         if (Boolean.parseBoolean(ConfigReader.getPropValue("headless"))) {
             options.addArguments("--headless=new");
         }
@@ -97,8 +110,13 @@ public final class DriverFactory {
         return options;
     }
 
+    // ✅ FIREFOX OPTIONS
     private static FirefoxOptions getFirefoxOptions() {
         FirefoxOptions options = new FirefoxOptions();
+
+        if (isCI()) {
+            options.addArguments("-headless");
+        }
 
         if (Boolean.parseBoolean(ConfigReader.getPropValue("headless"))) {
             options.addArguments("-headless");
@@ -111,8 +129,15 @@ public final class DriverFactory {
         return options;
     }
 
+    // ✅ EDGE OPTIONS
     private static EdgeOptions getEdgeOptions() {
         EdgeOptions options = new EdgeOptions();
+
+        if (isCI()) {
+            options.addArguments("--headless=new");
+            options.addArguments("--no-sandbox");
+            options.addArguments("--disable-dev-shm-usage");
+        }
 
         if (Boolean.parseBoolean(ConfigReader.getPropValue("headless"))) {
             options.addArguments("--headless=new");
