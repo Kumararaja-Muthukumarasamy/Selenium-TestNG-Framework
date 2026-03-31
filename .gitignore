@@ -1,0 +1,32 @@
+# Maven
+target/
+
+# Logs
+logs/
+*.log
+
+# Reports
+reports/
+
+# Screenshots
+screenshots/
+
+# IDE
+.idea/
+*.iml
+.classpath
+.project
+.settings/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (if any)
+node_modules/
+
+# Env files
+.env
+
+# Selenium / temp (optional future)
+test-results/
