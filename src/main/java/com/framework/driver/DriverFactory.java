@@ -16,138 +16,117 @@ import com.framework.config.ConfigReader;
 
 public final class DriverFactory {
 
-	private DriverFactory() {
-	}
+    private DriverFactory() {}
 
-	public static WebDriver initDriver(String browser, String runMode, String hubUrl) {
+    public static WebDriver initDriver(String browser, String runMode, String hubUrl) {
 
-		WebDriver driver;
+        WebDriver driver;
 
-		if ("remote".equalsIgnoreCase(runMode)) {
-			driver = createRemoteDriver(browser, hubUrl);
-		} else {
-			driver = createLocalDriver(browser);
-		}
+        if ("remote".equalsIgnoreCase(runMode)) {
+            driver = createRemoteDriver(browser, hubUrl);
+        } else {
+            driver = createLocalDriver(browser);
+        }
 
-		DriverManager.setDriver(driver);
-		applyBasicSettings(driver);
+        DriverManager.setDriver(driver);
+        applyBasicSettings(driver);
 
-		return driver;
-	}
+        return driver;
+    }
 
-	// ✅ LOCAL
-	private static WebDriver createLocalDriver(String browser) {
-		switch (browser.toLowerCase()) {
-		case "chrome":
-			return new ChromeDriver(getChromeOptions());
+    // ✅ LOCAL
+    private static WebDriver createLocalDriver(String browser) {
+        System.out.println(">>> Creating LOCAL driver for: " + browser);
+        System.out.println(">>> ExecutionEnv: " + System.getProperty("executionEnv"));
 
-		case "firefox":
-			return new FirefoxDriver(getFirefoxOptions());
+        switch (browser.toLowerCase()) {
+            case "chrome":
+                return new ChromeDriver(getChromeOptions());
 
-		case "edge":
-			return new EdgeDriver(getEdgeOptions());
+            case "firefox":
+                return new FirefoxDriver(getFirefoxOptions());
 
-		default:
-			throw new IllegalArgumentException("Invalid browser: " + browser);
-		}
-	}
+            case "edge":
+                return new EdgeDriver(getEdgeOptions());
 
-	// ✅ REMOTE (Grid / Docker / Cloud)
-	private static WebDriver createRemoteDriver(String browser, String hubUrl) {
+            default:
+                throw new IllegalArgumentException("Invalid browser: " + browser);
+        }
+    }
 
-		try {
-			URL url = new URL(hubUrl);
+    // ✅ REMOTE
+    private static WebDriver createRemoteDriver(String browser, String hubUrl) {
 
-			switch (browser.toLowerCase()) {
-			case "chrome":
-				return new RemoteWebDriver(url, getChromeOptions());
+        try {
+            URL url = new URL(hubUrl);
 
-			case "firefox":
-				return new RemoteWebDriver(url, getFirefoxOptions());
+            switch (browser.toLowerCase()) {
+                case "chrome":
+                    return new RemoteWebDriver(url, getChromeOptions());
 
-			case "edge":
-				return new RemoteWebDriver(url, getEdgeOptions());
+                case "firefox":
+                    return new RemoteWebDriver(url, getFirefoxOptions());
 
-			default:
-				throw new IllegalArgumentException("Invalid browser: " + browser);
-			}
+                case "edge":
+                    return new RemoteWebDriver(url, getEdgeOptions());
 
-		} catch (MalformedURLException e) {
-			throw new RuntimeException("Invalid hub URL: " + hubUrl, e);
-		}
-	}
+                default:
+                    throw new IllegalArgumentException("Invalid browser: " + browser);
+            }
 
-	// ✅ COMMON SETTINGS
-	private static void applyBasicSettings(WebDriver driver) {
-		driver.manage().window().maximize();
-		driver.manage().deleteAllCookies();
-	}
+        } catch (MalformedURLException e) {
+            throw new RuntimeException("Invalid hub URL: " + hubUrl, e);
+        }
+    }
 
-	// 🔥 Detect CI
-	private static boolean isCI() {
-		return "ci".equalsIgnoreCase(System.getProperty("executionEnv", "local"));
-	}
+    private static void applyBasicSettings(WebDriver driver) {
+        driver.manage().window().maximize();
+        driver.manage().deleteAllCookies();
+    }
 
-	// ✅ CHROME OPTIONS
-	private static ChromeOptions getChromeOptions() {
-		ChromeOptions options = new ChromeOptions();
+    // ✅ FIXED CI DETECTION
+    private static boolean isCI() {
+        return "ci".equalsIgnoreCase(System.getProperty("executionEnv", "local"));
+    }
 
-		// 👉 CI specific fixes
-		if (isCI()) {
-			options.addArguments("--headless=new");
-			options.addArguments("--no-sandbox");
-			options.addArguments("--disable-dev-shm-usage");
-		}
+    // ✅ CHROME OPTIONS (CI SAFE)
+    private static ChromeOptions getChromeOptions() {
+        ChromeOptions options = new ChromeOptions();
 
-		// 👉 Config-based
-		if (Boolean.parseBoolean(ConfigReader.getPropValue("headless"))) {
-			options.addArguments("--headless=new");
-		}
+        System.out.println(">>> Is CI: " + isCI());
 
-		if (Boolean.parseBoolean(ConfigReader.getPropValue("incognito"))) {
-			options.addArguments("--incognito");
-		}
+        if (isCI()) {
+            options.addArguments("--headless=new");
+            options.addArguments("--no-sandbox");
+            options.addArguments("--disable-dev-shm-usage");
+        }
 
-		return options;
-	}
+        if (Boolean.parseBoolean(ConfigReader.getPropValue("incognito"))) {
+            options.addArguments("--incognito");
+        }
 
-	// ✅ FIREFOX OPTIONS
-	private static FirefoxOptions getFirefoxOptions() {
-		FirefoxOptions options = new FirefoxOptions();
+        return options;
+    }
 
-		if (isCI()) {
-			options.addArguments("-headless");
-		}
+    private static FirefoxOptions getFirefoxOptions() {
+        FirefoxOptions options = new FirefoxOptions();
 
-		if (Boolean.parseBoolean(ConfigReader.getPropValue("headless"))) {
-			options.addArguments("-headless");
-		}
+        if (isCI()) {
+            options.addArguments("-headless");
+        }
 
-		if (Boolean.parseBoolean(ConfigReader.getPropValue("incognito"))) {
-			options.addArguments("-private");
-		}
+        return options;
+    }
 
-		return options;
-	}
+    private static EdgeOptions getEdgeOptions() {
+        EdgeOptions options = new EdgeOptions();
 
-	// ✅ EDGE OPTIONS
-	private static EdgeOptions getEdgeOptions() {
-		EdgeOptions options = new EdgeOptions();
+        if (isCI()) {
+            options.addArguments("--headless=new");
+            options.addArguments("--no-sandbox");
+            options.addArguments("--disable-dev-shm-usage");
+        }
 
-		if (isCI()) {
-			options.addArguments("--headless=new");
-			options.addArguments("--no-sandbox");
-			options.addArguments("--disable-dev-shm-usage");
-		}
-
-		if (Boolean.parseBoolean(ConfigReader.getPropValue("headless"))) {
-			options.addArguments("--headless=new");
-		}
-
-		if (Boolean.parseBoolean(ConfigReader.getPropValue("incognito"))) {
-			options.addArguments("--inprivate");
-		}
-
-		return options;
-	}
+        return options;
+    }
 }

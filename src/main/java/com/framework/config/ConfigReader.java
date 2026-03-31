@@ -5,53 +5,61 @@ import java.util.Properties;
 
 public final class ConfigReader {
 
-	private static final Properties prop = new Properties();
+    private static final Properties prop = new Properties();
 
-	static {		
-		try(InputStream iStream = ConfigReader.class
-				.getClassLoader()
-				.getResourceAsStream("config.properties")){
-			if (iStream == null) {
-				throw new RuntimeException("config.properties not found in classpath");
-			}
+    static {
+        try (InputStream iStream = ConfigReader.class
+                .getClassLoader()
+                .getResourceAsStream("config.properties")) {
 
-			prop.load(iStream);
+            if (iStream == null) {
+                throw new RuntimeException("config.properties not found in classpath");
+            }
 
-		}catch(Exception e) {
-			throw new RuntimeException("Failed to load config.properties", e);
-		}				
-	}
+            prop.load(iStream);
 
-	private ConfigReader() {}
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load config.properties", e);
+        }
+    }
 
-	public static String getPropValue(String key) {
+    private ConfigReader() {}
 
-	    String valueFromSystem = System.getProperty(key);
+    public static String getPropValue(String key) {
 
-	    if (valueFromSystem != null) {
-	        return valueFromSystem;
-	    }
+        String valueFromSystem = System.getProperty(key);
 
-	    return prop.getProperty(key);
-	}
-	
-	public static String getEnvironmentUrl() {
+        if (valueFromSystem != null && !valueFromSystem.isEmpty()) {
+            return valueFromSystem;
+        }
 
-	    String env = getPropValue("env");
+        String valueFromFile = prop.getProperty(key);
 
-	    if (env == null || env.isEmpty()) {
-	        throw new RuntimeException("Environment not provided. Use -Denv=qa/uat/prod");
-	    }
+        if (valueFromFile == null) {
+            throw new RuntimeException("Property not found: " + key);
+        }
 
-	    switch (env.toLowerCase()) {
-	        case "qa":
-	            return getPropValue("qa.url");
-	        case "uat":
-	            return getPropValue("uat.url");
-	        case "prod":
-	            return getPropValue("prod.url");
-	        default:
-	            throw new RuntimeException("Invalid environment: " + env);
-	    }
-	}
+        return valueFromFile;
+    }
+
+    // ✅ STRICT ENV VALIDATION
+    public static String getEnvironmentUrl() {
+
+        String env = getPropValue("env");
+
+        if (env == null || env.isEmpty()) {
+            throw new RuntimeException("Environment not provided. Use -Denv=qa/uat/prod");
+        }
+
+        switch (env.toLowerCase()) {
+            case "qa":
+                return getPropValue("qa.url");
+            case "uat":
+                return getPropValue("uat.url");
+            case "prod":
+                return getPropValue("prod.url");
+            default:
+                throw new RuntimeException("Invalid environment: " + env);
+        }
+    }
 }
