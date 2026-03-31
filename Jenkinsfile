@@ -1,17 +1,12 @@
 pipeline {
-   
-       parameters {
+    agent any
+
+    parameters {
         choice(name: 'BROWSER', choices: ['chrome', 'firefox', 'edge'], description: 'Select browser')
         choice(name: 'ENV', choices: ['qa', 'uat', 'prod'], description: 'Select environment')
     }
 
     stages {
-
-        stage('Checkout Code') {
-            steps {
-                git 'https://github.com/Kumararaja-Muthukumarasamy/Selenium-TestNG-Framework.git'
-            }
-        }
 
         stage('Clean & Build') {
             steps {
@@ -42,7 +37,6 @@ pipeline {
     post {
         always {
             script {
-                // Ensure workspace context
                 if (fileExists('reports')) {
                     archiveArtifacts artifacts: 'reports/*.html', fingerprint: true
                 }
