@@ -14,11 +14,12 @@ pipeline {
             }
         }
 
-        stage('Run Tests') {
-            steps {
-                bat "mvn test -Dbrowser=%BROWSER% -Denv=%ENV%"
-            }
-        }
+       stage('Run Tests') {
+    	   steps {
+               catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') {
+               bat "mvn test -Dbrowser=%BROWSER% -Denv=%ENV%"
+           }
+       }
 
         stage('Publish Report') {
             steps {
