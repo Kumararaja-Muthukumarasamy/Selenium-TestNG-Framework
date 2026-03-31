@@ -14,8 +14,11 @@ public class ExtentManager {
 
             String reportPath = System.getProperty("user.dir")
                     + "/reports/extent-" + System.currentTimeMillis() + ".html";
+            
+            String reportPath_Jenkins = System.getProperty("user.dir") 
+                    + "/reports/extent.html";
 
-            ExtentSparkReporter spark = new ExtentSparkReporter(reportPath);
+            ExtentSparkReporter spark = new ExtentSparkReporter(reportPath_Jenkins);
 
             spark.config().setReportName("Automation Report");
             spark.config().setDocumentTitle("Test Execution Report");

@@ -26,7 +26,7 @@ pipeline {
             steps {
                 publishHTML([
                     reportDir: 'reports',
-                    reportFiles: 'extent*.html',
+                    reportFiles: 'extent.html',
                     reportName: 'Automation Report',
                     keepAll: true,
                     alwaysLinkToLastBuild: true,
