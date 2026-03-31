@@ -1,11 +1,6 @@
 pipeline {
     agent any
 
-    tools {
-        maven 'Maven3'   // match your Jenkins config name
-        jdk 'Java17'
-    }
-
     parameters {
         choice(name: 'BROWSER', choices: ['chrome', 'firefox', 'edge'], description: 'Select browser')
         choice(name: 'ENV', choices: ['qa', 'uat', 'prod'], description: 'Select environment')
@@ -27,11 +22,7 @@ pipeline {
 
         stage('Run Tests') {
             steps {
-                bat """
-                mvn test \
-                -Dbrowser=${params.BROWSER} \
-                -Denv=${params.ENV}
-                """
+                bat "mvn test -Dbrowser=%BROWSER% -Denv=%ENV%"
             }
         }
 
@@ -39,11 +30,11 @@ pipeline {
             steps {
                 publishHTML([
                     reportDir: 'reports',
-                    reportFiles: 'extent-*.html',
+                    reportFiles: 'extent*.html',
                     reportName: 'Automation Report',
                     keepAll: true,
                     alwaysLinkToLastBuild: true,
-                    allowMissing: false
+                    allowMissing: true
                 ])
             }
         }
@@ -51,7 +42,12 @@ pipeline {
 
     post {
         always {
-            archiveArtifacts artifacts: 'reports/*.html', fingerprint: true
+            script {
+                // Ensure workspace context
+                if (fileExists('reports')) {
+                    archiveArtifacts artifacts: 'reports/*.html', fingerprint: true
+                }
+            }
         }
 
         success {
