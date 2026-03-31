@@ -7,8 +7,8 @@ import org.testng.ITestResult;
 import com.aventstack.extentreports.ExtentTest;
 import com.aventstack.extentreports.MediaEntityBuilder;
 import com.framework.driver.DriverManager;
-import com.framework.reports.ExtentManager;
-import com.framework.reports.ExtentTestManager;
+import com.framework.report.ExtentManager;
+import com.framework.report.ExtentTestManager;
 import com.framework.utils.ScreenshotUtil;
 public class ReportListener implements ITestListener {
 

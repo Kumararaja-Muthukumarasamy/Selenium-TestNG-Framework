@@ -11,7 +11,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.framework.driver.DriverManager;
-import com.framework.reports.ExtentTestManager;
+import com.framework.report.ExtentTestManager;
 
 
 public class BasePage {

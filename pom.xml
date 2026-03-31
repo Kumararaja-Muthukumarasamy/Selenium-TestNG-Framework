@@ -5,6 +5,9 @@
 	<groupId>Selenium_TestNG_Framework</groupId>
 	<artifactId>Selenium_TestNG_Framework</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
+	<properties>
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
 	<dependencies>
 		<dependency>
 			<groupId>org.seleniumhq.selenium</groupId>
